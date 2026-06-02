@@ -144,7 +144,7 @@ export default handler
 
 Bot ini dibuat untuk pembelajaran dan pengembangan pribadi.  
 Gunakan dengan bijak, jangan spam, dan jangan diperjualbelikan tanpa izin.
-
+gunakan node 20-21 untuk hasil yg baik
 ---
 
 <p align="center">
