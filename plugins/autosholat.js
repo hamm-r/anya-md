@@ -77,7 +77,7 @@ async function fetchBuffer(url, timeout = 20000) {
 /* ================= THUMBNAIL ================= */
 async function getThumbnail() {
   try {
-    if (thumbnailBuffer) return thumbnailBuffer
+    if (thumbnailBuffer?.length) return thumbnailBuffer
 
     let raw = await fetchBuffer(THUMBNAIL)
 
@@ -86,9 +86,7 @@ async function getThumbnail() {
         fit: 'cover',
         position: 'center'
       })
-      .jpeg({
-        quality: 90
-      })
+      .jpeg({ quality: 90 })
       .toBuffer()
 
     thumbnailBuffer = resized
@@ -107,9 +105,7 @@ async function getHighQualityThumbnail(conn) {
     if (!thumb?.length) return null
 
     const { imageMessage } = await prepareWAMessageMedia(
-      {
-        image: thumb
-      },
+      { image: thumb },
       {
         upload: conn.waUploadToServer,
         mediaTypeOverride: 'thumbnail-link'
@@ -127,63 +123,104 @@ async function getHighQualityThumbnail(conn) {
   }
 }
 
-/* ================= CONVERT OPUS ================= */
+/* ================= CONVERT OPUS SAFE ================= */
 async function convertBufferToOpus(input) {
-  const chunks = []
-
   return await new Promise((resolve, reject) => {
+    let chunks = []
+    let stderr = ''
+    let settled = false
+
     const ffmpeg = spawn('ffmpeg', [
+      '-hide_banner',
+      '-loglevel', 'error',
       '-i', 'pipe:0',
       '-vn',
+      '-ac', '1',
+      '-ar', '48000',
       '-c:a', 'libopus',
-      '-b:a', '',
+      '-b:a', '64k',
       '-vbr', 'on',
       '-compression_level', '10',
-      '-f', 'opus',
+      '-f', 'ogg',
       'pipe:1'
-    ])
-
-    ffmpeg.stdin.end(input)
-
-    ffmpeg.stdout.on('data', chunk => chunks.push(chunk))
-    ffmpeg.stderr.on('data', () => {})
-
-    ffmpeg.on('close', code => {
-      if (code !== 0) {
-        return reject(new Error('FFmpeg gagal convert opus'))
-      }
-
-      resolve(Buffer.concat(chunks))
+    ], {
+      stdio: ['pipe', 'pipe', 'pipe']
     })
 
-    ffmpeg.on('error', reject)
+    const done = (err, data) => {
+      if (settled) return
+      settled = true
+      err ? reject(err) : resolve(data)
+    }
+
+    ffmpeg.stdout.on('data', chunk => chunks.push(chunk))
+
+    ffmpeg.stderr.on('data', chunk => {
+      stderr += chunk.toString()
+    })
+
+    ffmpeg.stdin.on('error', err => {
+      if (err.code !== 'EPIPE') {
+        done(err)
+      }
+    })
+
+    ffmpeg.on('error', err => done(err))
+
+    ffmpeg.on('close', code => {
+      let out = Buffer.concat(chunks)
+
+      if (code !== 0 || !out.length) {
+        return done(new Error(stderr || 'FFmpeg gagal convert opus'))
+      }
+
+      done(null, out)
+    })
+
+    try {
+      ffmpeg.stdin.end(input)
+    } catch (e) {
+      if (e.code !== 'EPIPE') done(e)
+    }
   })
 }
 
 /* ================= GET AUDIO ================= */
 async function getAudioAdzan(nama) {
-  let urls =
-    nama === 'Subuh'
-      ? AUDIO_ADZAN.Subuh
-      : AUDIO_ADZAN.Default
+  let urls = nama === 'Subuh' ? AUDIO_ADZAN.Subuh : AUDIO_ADZAN.Default
 
   for (let url of urls) {
     try {
       if (audioCache[url]) return audioCache[url]
 
       let raw = await fetchBuffer(url)
-
       if (!raw || raw.length < 1000) continue
 
-      let opus = await convertBufferToOpus(raw)
+      try {
+        let opus = await convertBufferToOpus(raw)
 
-      if (!opus || opus.length < 1000) continue
+        if (opus && opus.length > 1000) {
+          audioCache[url] = {
+            buffer: opus,
+            mimetype: 'audio/ogg; codecs=opus',
+            ptt: true
+          }
 
-      audioCache[url] = opus
-      return opus
+          return audioCache[url]
+        }
+      } catch (e) {
+        console.log('Convert opus gagal, fallback MP3:', e.message || e)
+      }
+
+      audioCache[url] = {
+        buffer: raw,
+        mimetype: 'audio/mpeg',
+        ptt: false
+      }
+
+      return audioCache[url]
     } catch (e) {
       console.log('Audio gagal:', e.message || e)
-      continue
     }
   }
 
@@ -208,12 +245,12 @@ async function getJadwal(kota = 'jakarta') {
     }
 
     let id = cityMap[kota.toLowerCase()] || '1301'
-
     let url = `https://api.myquran.com/v2/sholat/jadwal/${id}/${today}`
 
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0'
+        'User-Agent': 'Mozilla/5.0',
+        Accept: 'application/json'
       }
     })
 
@@ -255,7 +292,6 @@ function isNowMatch(waktu) {
   target.setHours(h, m, 0, 0)
 
   let diff = (now - target) / 1000
-
   return diff >= 0 && diff <= TOLERANSI
 }
 
@@ -271,33 +307,37 @@ function resetDaily() {
 
 /* ================= SEND PREVIEW ================= */
 async function sendSholatPreview(conn, id, text) {
-  let thumb = await getThumbnail()
-  let highQualityThumbnail = await getHighQualityThumbnail(conn)
-  let invisible = '\u200B'.repeat(400)
+  try {
+    let thumb = await getThumbnail()
+    let highQualityThumbnail = await getHighQualityThumbnail(conn)
+    let invisible = '\u200B'.repeat(400)
 
-  return conn.sendMessage(id, {
-    text: `${SOURCE_URL}${invisible}
+    return await conn.sendMessage(id, {
+      text: `${SOURCE_URL}${invisible}
 
 ${text}`,
-    linkPreview: {
-      'matched-text': SOURCE_URL,
-      matchedText: SOURCE_URL,
-      canonicalUrl: SOURCE_URL,
-      title: '❀ ᴀɴʏᴀ ᴍᴅ ❀',
-      description: 'Pengingat Sholat • Waku Waku 🕌',
-      previewType: 0,
-      jpegThumbnail: thumb,
-      highQualityThumbnail,
-      thumbnailUrl: THUMBNAIL,
-      linkPreviewMetadata: {
-        linkMediaDuration: 0,
-        socialMediaPostType: 4
+      linkPreview: {
+        'matched-text': SOURCE_URL,
+        matchedText: SOURCE_URL,
+        canonicalUrl: SOURCE_URL,
+        title: '❀ ᴀɴʏᴀ ᴍᴅ ❀',
+        description: 'Pengingat Sholat • Waku Waku 🕌',
+        previewType: 0,
+        jpegThumbnail: thumb,
+        highQualityThumbnail,
+        thumbnailUrl: THUMBNAIL,
+        linkPreviewMetadata: {
+          linkMediaDuration: 0,
+          socialMediaPostType: 4
+        }
+      },
+      favicon: {
+        url: THUMBNAIL
       }
-    },
-    favicon: {
-      url: THUMBNAIL
-    }
-  }).catch(() => {})
+    })
+  } catch (e) {
+    console.log('Send preview gagal:', e.message || e)
+  }
 }
 
 /* ================= ENGINE ================= */
@@ -306,11 +346,14 @@ if (!global.autosholatInterval) {
     try {
       resetDaily()
 
-      for (let [id, chat] of Object.entries(global.db.data.chats || {})) {
-        if (!chat.autosholat) continue
+      let chats = global.db?.data?.chats || {}
+      let conn = global.conn
 
-        let conn = global.conn
-        if (!conn) continue
+      if (!conn) return
+
+      for (let [id, chat] of Object.entries(chats)) {
+        if (!chat?.autosholat) continue
+        if (!id.endsWith('@g.us')) continue
 
         let now = getNow()
 
@@ -342,8 +385,7 @@ Grup ditutup 11:00 - 13:00 WIB`
             } catch {}
 
             await conn.sendMessage(id, {
-              text:
-`✨ Grup dibuka kembali
+              text: `✨ Grup dibuka kembali
 Semoga ibadah diterima 🤲`
             }).catch(() => {})
 
@@ -390,27 +432,27 @@ Semoga ibadah diterima 🤲`
           } catch {}
 
           chat.isClosed = true
-          chat.tutupSampai = Date.now() + (DURASI_TUTUP * 60 * 1000)
+          chat.tutupSampai = Date.now() + DURASI_TUTUP * 60 * 1000
 
           await sendSholatPreview(
             conn,
             id,
             `🕌 *Adzan ${nama}*
 
-⏰ ${waktu}
+⏰ ${waktu} WIB
 📍 ${kota}
 
 Mari tunaikan sholat 🤲
 🚫 Grup ditutup ${DURASI_TUTUP} menit`
           )
 
-          let buffer = await getAudioAdzan(nama)
+          let audio = await getAudioAdzan(nama)
 
-          if (buffer) {
+          if (audio?.buffer) {
             await conn.sendMessage(id, {
-              audio: buffer,
-              mimetype: 'audio/ogg; codecs=opus',
-              ptt: true
+              audio: audio.buffer,
+              mimetype: audio.mimetype,
+              ptt: audio.ptt
             }).catch(e => {
               console.log('Kirim audio gagal:', e.message || e)
             })
@@ -428,16 +470,19 @@ Mari tunaikan sholat 🤲
 }
 
 /* ================= ANTI BYPASS ================= */
-export async function before(m, { isAdmin }) {
-  let chat = global.db.data.chats[m.chat]
+export async function before(m, { isAdmin, isOwner }) {
+  try {
+    if (!m.isGroup) return
 
-  if (!chat?.autosholat) return
+    let chat = global.db?.data?.chats?.[m.chat]
+    if (!chat?.autosholat) return
 
-  if ((chat.isClosed || chat.jumatClosed) && !isAdmin) {
-    try {
-      await m.delete()
-    } catch {}
-  }
+    if ((chat.isClosed || chat.jumatClosed) && !isAdmin && !isOwner) {
+      try {
+        await m.delete()
+      } catch {}
+    }
+  } catch {}
 }
 
 /* ================= COMMAND ================= */
@@ -445,18 +490,48 @@ let handler = async (m, { args, command }) => {
   let chat = global.db.data.chats[m.chat]
 
   if (command === 'autosholat') {
-    if (args[0] === 'on') {
+    let type = (args[0] || '').toLowerCase()
+
+    if (type === 'on') {
       chat.autosholat = true
       return m.reply('🕌 Autosholat aktif')
     }
 
-    if (args[0] === 'off') {
+    if (type === 'off') {
       chat.autosholat = false
       chat.isClosed = false
       chat.jumatClosed = false
+      chat.tutupSampai = 0
+
+      try {
+        await global.conn.groupSettingUpdate(m.chat, 'not_announcement')
+      } catch {}
 
       return m.reply('❌ Autosholat mati')
     }
+
+    if (type === 'status') {
+      return m.reply(
+`🕌 *STATUS AUTOSHOLAT*
+
+Status: ${chat.autosholat ? 'Aktif ✅' : 'Mati ❌'}
+Kota: ${chat.kota || 'jakarta'}
+Tutup Normal: ${chat.isClosed ? 'Ya' : 'Tidak'}
+Mode Jumat: ${chat.jumatClosed ? 'Ya' : 'Tidak'}`
+      )
+    }
+
+    return m.reply(
+`🕌 *AUTOSHOLAT*
+
+.autosholat on
+.autosholat off
+.autosholat status
+.setkota nama_kota
+
+Contoh:
+.setkota bandung`
+    )
   }
 
   if (command === 'setkota') {
@@ -466,13 +541,8 @@ let handler = async (m, { args, command }) => {
 
     chat.kota = args[0].toLowerCase()
 
-    return m.reply(`📍 Kota di set ke ${chat.kota}`)
+    return m.reply(`📍 Kota di set ke *${chat.kota}*`)
   }
-
-  m.reply(
-`.autosholat on/off
-.setkota nama_kota`
-  )
 }
 
 handler.command = /^(autosholat|setkota)$/i
