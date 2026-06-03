@@ -32,7 +32,7 @@
 
 Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulang sesuai kebutuhan.
 
-> 🌙 **Recode by Kurumi**  
+> 🔧 copyright from base kurumi by hilman  
 > ✨ Dikembangkan ulang dengan tema **Anya MD** oleh **Hamm**
 
 ---
@@ -137,6 +137,7 @@ export default handler
 - ChiiMD
 - Semua creator plugin
 - Teman-teman yang selalu support ❤️
+- hilman
 
 ---
 
@@ -152,5 +153,5 @@ gunakan node 20-21 untuk hasil yg baik
 </p>
 
 <p align="center">
-  <i>Recode by Kurumi • Theme by Anya MD • Created by Hamm</i>
+  <i>Recode Kurumi ai by hilman • Theme by Anya MD • Created by Hamm</i>
 </p>
