@@ -56,7 +56,7 @@ if (!m) return;
 // ==================
 if (m.chat === 'status@broadcast') return
 if (!m.message) return
-if (m.key.fromMe) return
+if (m.key.fromMe && !m.text?.startsWith('.')) return
 if (m.isBaileys) return
 
 // ==================
