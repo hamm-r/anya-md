@@ -2,7 +2,7 @@ import fetch from 'node-fetch'
 
 if (!global.aiSessions) global.aiSessions = {}
 
-const OWNER_NUMBER = '6281991861685'
+const OWNER_NUMBER = '628xxxxx'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
