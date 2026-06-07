@@ -5,12 +5,25 @@ import fs from 'fs'
 
 const cooldown = new Map()
 
-let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
-  let user = global.db.data.users[m.sender]
-  let setting = global.db.data.settings[conn.user.jid] || { setmenu: 1 }
-  let typeMenu = setting.setmenu
+function cleanText(str = '') {
+  return String(str)
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF\u034F]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
-  let { level, role, limit, premiumTime } = user
+let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
+  global.db.data.users[m.sender] ??= {}
+  global.db.data.settings[conn.user.jid] ??= {}
+
+  if (![1, 2, 3].includes(global.db.data.settings[conn.user.jid].setmenu)) {
+    global.db.data.settings[conn.user.jid].setmenu = 1
+  }
+
+  let user = global.db.data.users[m.sender]
+  let typeMenu = global.db.data.settings[conn.user.jid].setmenu
+
+  let { level = 0, role = 'Newbie', limit = 0, premiumTime = 0 } = user
   let name = `@${m.sender.split('@')[0]}`
   let strLimit = isOwner ? '∞' : premiumTime > 0 ? 'Unlimited' : `${limit}`
 
@@ -36,10 +49,12 @@ let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
     }
   }
 
-  let menuType = text?.toLowerCase().trim()
+  let menuType = cleanText(text).toLowerCase()
+  if (!menuType) menuType = 'list'
+
   let arrayMenu = Object.keys(categories).sort()
 
-  const formatTag = tag => tag
+  const formatTag = tag => String(tag)
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, v => v.toUpperCase())
 
@@ -69,17 +84,19 @@ Pilih kategori menu dulu yaa... heh? 😳
   try {
     thumb = fs.readFileSync('./media/menu.png')
   } catch {
-    thumb = await (
-      await fetch('https://raw.githubusercontent.com/hamm-r/uploader/main/1779255801770-854.jpg')
-    ).buffer()
+    try {
+      thumb = await (
+        await fetch('https://raw.githubusercontent.com/hamm-r/uploader/main/1779255801770-854.jpg')
+      ).buffer()
+    } catch {
+      thumb = Buffer.alloc(0)
+    }
   }
 
-  if (typeMenu === 1 && (!menuType || menuType === 'list')) {
+  if (typeMenu === 1 && menuType === 'list') {
     await conn.sendMessage(m.chat, {
       image: thumb,
-
       caption: ' ',
-
       footer: `
 — ANYA MD —
 
@@ -93,66 +110,46 @@ Pilih kategori menu dulu yaa... heh? 😳
 ⌕ select menu below
 © Anya MD
 `.trim(),
-
       optionText: '🥜 Pilih Menu',
       optionTitle: 'List Menu Anya',
-
       offerText: '🎁 Special Menu!',
       offerCode: 'ANYA-MD',
       offerUrl: 'https://chat.whatsapp.com/KXDWrwd6j5h33AMVdAKFDD?s=cl&p=a&mlu=4',
       offerExpiration: Date.now() + 86400000,
-
       nativeFlow: [
         {
           text: '🍓 Pilih Kategori',
-
           sections: [
             {
               title: `🥜 Semua Kategori (${arrayMenu.length})`,
-
               rows: arrayMenu.map(v => ({
                 header: 'Anya MD',
-
                 title: `✦ ${formatTag(v)}`,
-
                 description: `Menu kategori ${formatTag(v)} milik Anya`,
-
                 id: `${usedPrefix + command} ${v}`
               }))
             }
           ],
-
           icon: 'default'
         },
-
         {
           text: '🍬 All Menu',
-
           id: `${usedPrefix + command} all`,
-
           icon: 'review'
         },
-
         {
           text: '📋 Copy Menu',
-
           copy: `${usedPrefix + command} all`
         },
-
         {
           text: '🤗 Group Anya',
-
           url: 'https://chat.whatsapp.com/KXDWrwd6j5h33AMVdAKFDD?s=cl&p=a&mlu=4',
-
           useWebview: true
         }
       ],
-
       interactiveAsTemplate: false
-
     }, { quoted: m })
-
-  } else if (typeMenu === 2 && (!menuType || menuType === 'list')) {
+  } else if (typeMenu === 2 && menuType === 'list') {
     let rows = arrayMenu.map(tag => ({
       title: `✨ ${tag.toUpperCase()}`,
       id: `${usedPrefix + command} ${tag}`
@@ -169,8 +166,7 @@ Pilih kategori menu dulu yaa... heh? 😳
         }]
       }]
     }, { quoted: m })
-
-  } else if (typeMenu === 3 && (!menuType || menuType === 'list')) {
+  } else if (typeMenu === 3 && menuType === 'list') {
     let txt = mainCaption + `\n\n────── 🍓 ──────\n`
 
     for (let tag of arrayMenu) {
@@ -183,17 +179,24 @@ Pilih kategori menu dulu yaa... heh? 😳
       image: thumb,
       caption: txt.trim()
     }, { quoted: m })
-
   } else {
-    let detailText = `*ANYA MD*\n(heh? banyak banget menu 😳)\n`
-
     let tagsToShow = menuType === 'all'
       ? arrayMenu
-      : (categories[menuType] ? [menuType] : [])
+      : categories[menuType]
+        ? [menuType]
+        : []
 
     if (tagsToShow.length === 0) {
-      return m.reply(`Heh? menu *${text}* nggak ada 😵`)
+      menuType = 'list'
+
+      if (typeMenu === 1) {
+        return handler(m, { conn, usedPrefix, command, text: '', isOwner })
+      }
+
+      return m.reply(`Heh? menu itu nggak ada 😵`)
     }
+
+    let detailText = `*ANYA MD*\n(heh? banyak banget menu 😳)\n`
 
     for (let tag of tagsToShow) {
       detailText += `\n🍓 *${tag.toUpperCase()}*\n`
