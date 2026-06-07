@@ -89,7 +89,7 @@ global.namebot = 'Anya MD'
 global.author = 'Hamm'
 global.wm = '❀ ᴀɴʏᴀ ᴍᴅ ❀'
 ```
-
+note: autogpt bisa di ganti nama dan no juga yaa cari aja plugin _autogpt
 ---
 
 ## 🧩 Plugin System
