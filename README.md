@@ -69,7 +69,7 @@ Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulan
 
 ```bash
 git clone https://github.com/hamm-r/anya-md.git
-cd kurumi-MD
+cd anya-md
 npm install
 npm start
 ```
@@ -146,6 +146,8 @@ export default handler
 Bot ini dibuat untuk pembelajaran dan pengembangan pribadi.  
 Gunakan dengan bijak, jangan spam, dan jangan diperjualbelikan tanpa izin.
 gunakan node 20-21 untuk hasil yg baik
+report masalah bot?
+https://ngl.link/hamm_ajh
 ---
 
 <p align="center">
