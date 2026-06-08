@@ -1,5 +1,5 @@
 /**
- * Maker Brat Anya
+ * Maker Brat Bahlil
  * Type   : Plugins ESM
  * Fixed  : Hamm
  */
@@ -7,8 +7,6 @@
 import { createCanvas, loadImage } from '@napi-rs/canvas'
 import fetch from 'node-fetch'
 import { createSticker, StickerTypes } from 'wa-sticker-formatter'
-
-const TEMPLATE_URL = 'https://raw.githubusercontent.com/Crashmant/rizky/main/uploads/1780884914544-681.jpeg'
 
 let handler = async (m, { text, conn, usedPrefix, command }) => {
   if (!text) {
@@ -22,8 +20,10 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
   await m.react('✨')
 
   try {
-    const res = await fetch(TEMPLATE_URL)
-    if (!res.ok) throw new Error(`Gagal fetch template: ${res.status}`)
+    const imageUrl = 'https://i.ibb.co/JwT2QFvY/elaina-md.jpg'
+
+    const res = await fetch(imageUrl)
+    if (!res.ok) throw new Error(`Gagal fetch gambar: ${res.status}`)
 
     const buffer = Buffer.from(await res.arrayBuffer())
     const img = await loadImage(buffer)
@@ -33,9 +33,9 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
 
     ctx.drawImage(img, 0, 0, img.width, img.height)
 
-    const boardX = img.width * 0.16
-    const boardY = img.height * 0.54
-    const boardW = img.width * 0.68
+    const boardX = img.width * 0.18
+    const boardY = img.height * 0.55
+    const boardW = img.width * 0.64
     const boardH = img.height * 0.30
 
     const padding = boardW * 0.08
@@ -43,10 +43,10 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
 
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillStyle = '#111111'
+    ctx.fillStyle = '#000000'
 
-    function wrapLines(ctx, input, maxWidth) {
-      const words = String(input).trim().split(/\s+/)
+    function wrapLines(ctx, text, maxWidth) {
+      const words = String(text).trim().split(/\s+/)
       const lines = []
       let line = ''
 
@@ -65,34 +65,34 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
       return lines
     }
 
-    let fontSize = 78
+    let fontSize = 80
     let lines = []
 
-    while (fontSize > 28) {
-      ctx.font = `600 ${fontSize}px Arial`
+    while (fontSize > 30) {
+      ctx.font = `500 ${fontSize}px Arial`
       lines = wrapLines(ctx, text, textAreaW)
 
-      const lineHeight = fontSize * 1.08
+      const lineHeight = fontSize * 1.05
       if (lines.length <= 3 && lines.length * lineHeight <= boardH) break
 
       fontSize--
     }
 
-    const showLines = lines.slice(0, 3)
-    const lineHeight = fontSize * 1.08
+    ctx.font = `500 ${fontSize}px Arial`
 
-    ctx.font = `600 ${fontSize}px Arial`
-
-    ctx.shadowColor = 'rgba(255,255,255,0.45)'
+    ctx.shadowColor = 'rgba(0,0,0,0.12)'
     ctx.shadowBlur = 2
     ctx.shadowOffsetX = 1
     ctx.shadowOffsetY = 1
+
+    const lineHeight = fontSize * 1.05
+    const showLines = lines.slice(0, 3)
 
     const startY =
       boardY +
       boardH / 2 -
       (showLines.length * lineHeight) / 2 +
-      lineHeight * 0.42
+      lineHeight * 0.38
 
     showLines.forEach((line, i) => {
       ctx.fillText(
@@ -108,7 +108,7 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
       type: StickerTypes.FULL,
       pack: global.stickpack || '❀ ᴀɴʏᴀ ᴍᴅ ❀',
       author: global.stickauth || 'ʙʏ ʜᴀᴍᴍ',
-      quality: 90
+      quality: 80
     })
 
     await conn.sendMessage(
@@ -121,18 +121,17 @@ let handler = async (m, { text, conn, usedPrefix, command }) => {
   } catch (e) {
     console.error(e)
     await m.react('❌')
-
     await conn.sendMessage(
       m.chat,
-      { text: '❌ Gagal membuat stiker Brat Anya.' },
+      { text: '❌ Gagal membuat stiker Brat Bahlil.' },
       { quoted: global.fkontak || m }
     )
   }
 }
 
-handler.help = ['bratanya', 'anya']
+handler.help = ['bahlil', 'bratbahlil']
 handler.tags = ['maker']
-handler.command = /^(bratanya|anya)$/i
+handler.command = /^(bahlil|bratbahlil)$/i
 handler.limit = true
 handler.register = true
 
