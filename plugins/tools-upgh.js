@@ -18,8 +18,13 @@ let handler = async (m, { usedPrefix, command }) => {
         let ext = type?.ext || mime.split('/')[1] || 'bin'
 
         const config = {
+<<<<<<< HEAD
             username: "",
             repo: "",
+=======
+            username: "sesuaikan nama kmu di sini",
+            repo: "isi aja di sini",
+>>>>>>> 497aa13 (anya-md)
             folder: "",
             token: "", // ⚠️ pake token baru
             branch: "main"

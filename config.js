@@ -2,8 +2,13 @@ import { watchFile, unwatchFile } from 'fs';
 import chalk from 'chalk';
 import { fileURLToPath } from 'url';
 
+<<<<<<< HEAD
 global.pairingNumber = 62xxxx;
 global.owner = [['628xxxx', 'Hamm', true]];
+=======
+global.pairingNumber = 628xxx;
+global.owner = [['628xxx', 'Hamm', true]];
+>>>>>>> 497aa13 (anya-md)
 global.mods = [];
 
 global.namebot = 'Anya ᴍᴅ ʙy ʜamm';

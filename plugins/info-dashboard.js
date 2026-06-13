@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import sharp from 'sharp'
 import { prepareWAMessageMedia } from '@itsliaaa/baileys'
 
@@ -176,3 +177,180 @@ function parseMs(ms) {
     nanoseconds: Math.trunc(ms * 1000000) % 1000
   }
 }
+=======
+import { createCanvas, loadImage } from '@napi-rs/canvas'
+import os from 'os'
+import moment from 'moment-timezone'
+
+const BG_URL = 'https://raw.githubusercontent.com/hamm-r/uploader/main/1781161929894-460.jpg'
+
+const W = 1280
+const H = 720
+
+function formatBytes(bytes = 0) {
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  if (!bytes) return '0 B'
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`
+}
+
+function formatUptime(sec = 0) {
+  const d = Math.floor(sec / 86400)
+  const h = Math.floor((sec % 86400) / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  return `${d}d ${h}h ${m}m`
+}
+
+async function fetchBuffer(url) {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Gagal ambil asset ${res.status}`)
+  return Buffer.from(await res.arrayBuffer())
+}
+
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
+  ctx.closePath()
+}
+
+function card(ctx, x, y, w, h) {
+  ctx.save()
+  ctx.fillStyle = 'rgba(20, 20, 30, 0.58)'
+  rr(ctx, x, y, w, h, 26)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'
+  ctx.lineWidth = 2
+  ctx.stroke()
+  ctx.restore()
+}
+
+function text(ctx, str, x, y, size, weight = '', alpha = 1) {
+  ctx.save()
+  ctx.globalAlpha = alpha
+  ctx.fillStyle = '#ffffff'
+  ctx.font = `${weight} ${size}px Arial`
+  ctx.fillText(String(str), x, y)
+  ctx.restore()
+}
+
+function progress(ctx, x, y, w, h, percent) {
+  percent = Math.max(0, Math.min(100, percent))
+
+  ctx.fillStyle = 'rgba(255,255,255,0.16)'
+  rr(ctx, x, y, w, h, h / 2)
+  ctx.fill()
+
+  ctx.fillStyle = '#ffffff'
+  rr(ctx, x, y, (w * percent) / 100, h, h / 2)
+  ctx.fill()
+}
+
+function stat(ctx, x, y, title, value, sub) {
+  card(ctx, x, y, 360, 120)
+
+  text(ctx, title, x + 26, y + 38, 20, 'bold', 0.6)
+  text(ctx, value, x + 26, y + 82, 34, 'bold')
+  text(ctx, sub, x + 26, y + 108, 18, '', 0.55)
+}
+
+async function makeDashboard(conn) {
+  const canvas = createCanvas(W, H)
+  const ctx = canvas.getContext('2d')
+
+  const bg = await loadImage(await fetchBuffer(BG_URL))
+  ctx.drawImage(bg, 0, 0, W, H)
+
+  ctx.fillStyle = 'rgba(0,0,0,0.62)'
+  ctx.fillRect(0, 0, W, H)
+
+  const users = Object.keys(global.db?.data?.users || {}).length
+  const chats = Object.keys(global.db?.data?.chats || {}).length
+  const plugins = Object.values(global.plugins || {}).filter(v => !v.disabled).length
+
+  const totalRam = os.totalmem()
+  const freeRam = os.freemem()
+  const usedRam = totalRam - freeRam
+  const ramPercent = Math.round((usedRam / totalRam) * 100)
+
+  const cpus = os.cpus()
+  const cores = cpus.length
+  const cpuModel = cpus[0]?.model || 'Unknown CPU'
+  const cpuLoad = os.loadavg()[0]
+  const cpuPercent = Math.min(100, Math.round((cpuLoad / cores) * 100))
+
+  const botName = conn.user?.name || 'Anya MD'
+  const time = moment().tz('Asia/Jakarta').format('DD MMM YYYY • HH:mm WIB')
+
+  card(ctx, 60, 50, 1160, 120)
+
+  text(ctx, 'ANYA MD', 95, 105, 46, 'bold')
+  text(ctx, 'Premium Bot Dashboard', 98, 138, 22, '', 0.65)
+
+  text(ctx, 'ONLINE', 1090, 92, 20, 'bold', 0.85)
+  text(ctx, time, 905, 135, 20, '', 0.65)
+
+  stat(ctx, 60, 205, 'UPTIME', formatUptime(process.uptime()), botName)
+  stat(ctx, 460, 205, 'USERS', users, `${chats} chats`)
+  stat(ctx, 860, 205, 'PLUGINS', plugins, 'active modules')
+
+  card(ctx, 60, 365, 560, 150)
+  text(ctx, 'RAM USAGE', 95, 410, 22, 'bold', 0.6)
+  text(ctx, `${ramPercent}%`, 95, 462, 42, 'bold')
+  text(ctx, `${formatBytes(usedRam)} / ${formatBytes(totalRam)}`, 195, 462, 22, '', 0.65)
+  progress(ctx, 95, 485, 460, 16, ramPercent)
+  text(ctx, `Bot process: ${formatBytes(process.memoryUsage().rss)}`, 95, 535, 18, '', 0.55)
+
+  card(ctx, 660, 365, 560, 150)
+  text(ctx, 'CPU INFO', 695, 410, 22, 'bold', 0.6)
+  text(ctx, `${cpuPercent}%`, 695, 462, 42, 'bold')
+  text(ctx, `${cores} Core • Load ${cpuLoad.toFixed(2)}`, 795, 462, 22, '', 0.65)
+  progress(ctx, 695, 485, 460, 16, cpuPercent)
+  text(ctx, cpuModel.slice(0, 48), 695, 535, 18, '', 0.55)
+
+  card(ctx, 60, 560, 1160, 90)
+  text(ctx, 'SYSTEM', 95, 605, 22, 'bold', 0.6)
+  text(ctx, `${os.type()} • ${os.platform()} ${os.arch()} • Node ${process.version}`, 95, 635, 24)
+
+  text(ctx, '© Anya MD by Hamm', 60, 695, 18, '', 0.45)
+
+  return canvas.toBuffer('image/png')
+}
+
+let handler = async (m, { conn }) => {
+  try {
+    await m.react?.('🕐')
+
+    const buffer = await makeDashboard(conn)
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        image: buffer,
+        caption: '乂 *ANYA DASHBOARD*'
+      },
+      { quoted: m }
+    )
+
+    await m.react?.('✅')
+  } catch (e) {
+    console.error(e)
+    await m.react?.('❌')
+    m.reply(`Error dashboard:\n${e.message}`)
+  }
+}
+
+handler.help = ['dashboard']
+handler.tags = ['info']
+handler.command = /^(dashboard|dash|statusbot|ping)$/i
+
+export default handler
+>>>>>>> 497aa13 (anya-md)

@@ -2,7 +2,11 @@ import fetch from 'node-fetch'
 
 if (!global.aiSessions) global.aiSessions = {}
 
+<<<<<<< HEAD
 const OWNER_NUMBER = '628xxxxx'
+=======
+const OWNER_NUMBER = '628xxx'
+>>>>>>> 497aa13 (anya-md)
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -169,4 +173,8 @@ STATUS USER:
   } catch (e) {
     console.log('AutoAI Error:', e)
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 497aa13 (anya-md)

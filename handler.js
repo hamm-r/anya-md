@@ -5,6 +5,10 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { unwatchFile, watchFile } from 'fs';
 import chalk from 'chalk';
+<<<<<<< HEAD
+=======
+import { createWelcomeCard } from './lib/welcome.js'
+>>>>>>> 497aa13 (anya-md)
 
 const isNumber = (x) => typeof x === 'number' && !isNaN(x);
 const cleanJid = jid => {
@@ -503,6 +507,7 @@ export async function participantsUpdate({
   switch (action) {
 
     case 'add':
+<<<<<<< HEAD
     case 'remove':
 
       if (!chat.welcome) break
@@ -548,6 +553,92 @@ export async function participantsUpdate({
       }
 
       break
+=======
+case 'remove':
+
+  if (!chat.welcome) break
+
+  for (let user of participants) {
+
+    user = await fixJid(
+      this,
+      user?.phoneNumber ||
+      user?.id ||
+      user
+    )
+
+    const metadata = await this
+      .groupMetadata(id)
+      .catch(() => groupMetadata || {})
+
+    const groupName =
+      metadata.subject ||
+      this.getName(id) ||
+      'Group'
+
+    const groupDesc =
+      metadata.desc ||
+      metadata.description ||
+      'Tidak ada deskripsi grup'
+
+    const totalMember =
+      metadata.participants?.length || 0
+
+    const memberCount =
+      action === 'add'
+        ? totalMember
+        : Math.max(totalMember - 1, 0)
+
+    const pp = await this
+      .profilePictureUrl(user, 'image')
+      .catch(() => null)
+
+    const card = await createWelcomeCard({
+      avatar: pp,
+      username: '@' + user.split('@')[0],
+      groupName,
+      memberCount,
+      type: action === 'add'
+        ? 'welcome'
+        : 'goodbye'
+    })
+
+    const text = (
+      action === 'add'
+        ? chat.sWelcome ||
+          this.welcome ||
+          `✨ Waku Waku~
+
+Welcome @user
+
+🌸 Member ke-@member
+👥 Total Member: @member
+
+Selamat datang di @subject`
+        : chat.sBye ||
+          this.bye ||
+          `🥜 Hweh...
+
+Goodbye @user
+
+Terima kasih sudah menjadi bagian dari @subject
+
+👥 Sisa Member: @member`
+    )
+      .replace(/@user/g, '@' + user.split('@')[0])
+      .replace(/@subject/g, groupName)
+      .replace(/@desc/g, groupDesc)
+      .replace(/@member/g, String(memberCount))
+
+    await this.sendMessage(id, {
+      image: card,
+      caption: text,
+      mentions: [user]
+    })
+  }
+
+  break
+>>>>>>> 497aa13 (anya-md)
 
     case 'promote':
     case 'demote':
