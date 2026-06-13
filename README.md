@@ -32,11 +32,7 @@
 
 Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulang sesuai kebutuhan.
 
-<<<<<<< HEAD
-> 🔧 copyright from base kurumi by hilman  
-=======
 > 🌙 **Recode by Kurumi**  
->>>>>>> 497aa13 (anya-md)
 > ✨ Dikembangkan ulang dengan tema **Anya MD** oleh **Hamm**
 
 ---
@@ -72,13 +68,8 @@ Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulan
 ## 🚀 Installation
 
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/hamm-r/anya-md.git
-cd anya-md
-=======
 git clone https://github.com/himanackerman/kurumi-MD.git
 cd kurumi-MD
->>>>>>> 497aa13 (anya-md)
 npm install
 npm start
 ```
@@ -98,11 +89,7 @@ global.namebot = 'Anya MD'
 global.author = 'Hamm'
 global.wm = '❀ ᴀɴʏᴀ ᴍᴅ ❀'
 ```
-<<<<<<< HEAD
-note: autogpt bisa di ganti nama dan no juga yaa cari aja plugin _autogpt
-=======
 
->>>>>>> 497aa13 (anya-md)
 ---
 
 ## 🧩 Plugin System
@@ -150,10 +137,6 @@ export default handler
 - ChiiMD
 - Semua creator plugin
 - Teman-teman yang selalu support ❤️
-<<<<<<< HEAD
-- hilman
-=======
->>>>>>> 497aa13 (anya-md)
 
 ---
 
@@ -161,13 +144,7 @@ export default handler
 
 Bot ini dibuat untuk pembelajaran dan pengembangan pribadi.  
 Gunakan dengan bijak, jangan spam, dan jangan diperjualbelikan tanpa izin.
-<<<<<<< HEAD
-gunakan node 20-21 untuk hasil yg baik
-- report masalah bot?
-https://ngl.link/hamm_ajh
-=======
 
->>>>>>> 497aa13 (anya-md)
 ---
 
 <p align="center">
@@ -175,9 +152,5 @@ https://ngl.link/hamm_ajh
 </p>
 
 <p align="center">
-<<<<<<< HEAD
-  <i>Recode Kurumi ai by hilman • Theme by Anya MD • Created by Hamm</i>
-=======
   <i>Recode by Kurumi • Theme by Anya MD • Created by Hamm</i>
->>>>>>> 497aa13 (anya-md)
 </p>
