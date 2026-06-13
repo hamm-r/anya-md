@@ -214,8 +214,8 @@ let handler = async (m, { conn }) => {
   }
 }
 
-handler.help = ['dashboard']
+handler.help = ['speed']
 handler.tags = ['info']
-handler.command = /^(statusbot|ping)$/i
+handler.command = /^(ping|speed)$/i
 
 export default handler
