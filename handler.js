@@ -5,10 +5,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { unwatchFile, watchFile } from 'fs';
 import chalk from 'chalk';
-<<<<<<< HEAD
-=======
 import { createWelcomeCard } from './lib/welcome.js'
->>>>>>> 497aa13 (anya-md)
 
 const isNumber = (x) => typeof x === 'number' && !isNaN(x);
 const cleanJid = jid => {
@@ -507,53 +504,6 @@ export async function participantsUpdate({
   switch (action) {
 
     case 'add':
-<<<<<<< HEAD
-    case 'remove':
-
-      if (!chat.welcome) break
-
-      for (let user of participants) {
-
-        user = await fixJid(
-          this,
-          user?.phoneNumber ||
-          user?.id ||
-          user
-        )
-
-        let text = (
-          action === 'add'
-            ? chat.sWelcome ||
-              this.welcome ||
-              'Welcome, @user!'
-            : chat.sBye ||
-              this.bye ||
-              'Bye, @user!'
-        )
-        .replace(
-          /@user/g,
-          '@' + user.split('@')[0]
-        )
-        .replace(
-          /@subject/g,
-          groupMetadata.subject ||
-          this.getName(id)
-        )
-        .replace(
-          /@desc/g,
-          groupMetadata.desc || ''
-        )
-
-        await sendForceMention(
-          this,
-          id,
-          text,
-          [user]
-        )
-      }
-
-      break
-=======
 case 'remove':
 
   if (!chat.welcome) break
@@ -638,7 +588,6 @@ Terima kasih sudah menjadi bagian dari @subject
   }
 
   break
->>>>>>> 497aa13 (anya-md)
 
     case 'promote':
     case 'demote':

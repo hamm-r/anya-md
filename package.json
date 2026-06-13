@@ -43,10 +43,7 @@
     "awesome-phonenumber": "^5.10.0",
     "axios": "^1.13.2",
     "baileys": "7.0.0-rc.9",
-<<<<<<< HEAD
-=======
     "baileys-mbuilder": "^4.6.0-lts",
->>>>>>> 497aa13 (anya-md)
     "bing-translate-api": "^4.0.2",
     "cainode": "^1.2.3",
     "canvafy": "^7.2.1",
