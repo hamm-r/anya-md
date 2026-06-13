@@ -32,7 +32,7 @@
 
 Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulang sesuai kebutuhan.
 
-> 🌙 **Recode by Kurumi**  
+> 🌙 **Recode from Kurumi ai by hilman**  
 > ✨ Dikembangkan ulang dengan tema **Anya MD** oleh **Hamm**
 
 ---
@@ -89,6 +89,7 @@ global.namebot = 'Anya MD'
 global.author = 'Hamm'
 global.wm = '❀ ᴀɴʏᴀ ᴍᴅ ❀'
 ```
+note = _autogptnya bisa di set jga yaa
 
 ---
 
@@ -152,5 +153,5 @@ Gunakan dengan bijak, jangan spam, dan jangan diperjualbelikan tanpa izin.
 </p>
 
 <p align="center">
-  <i>Recode by Kurumi • Theme by Anya MD • Created by Hamm</i>
+  <i>Recode from Kurumi ai by hilman • Theme by Anya MD • Created by Hamm</i>
 </p>
