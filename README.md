@@ -68,8 +68,8 @@ Bot ini menggunakan sistem plugin yang ringan, rapi, dan mudah dikembangkan ulan
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/himanackerman/kurumi-MD.git
-cd kurumi-MD
+git clone https://github.com/hamm-r/anya-md.git
+cd anya-md
 npm install
 npm start
 ```
