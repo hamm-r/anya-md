@@ -5,34 +5,12 @@ import fs from 'fs'
 
 const cooldown = new Map()
 
-<<<<<<< HEAD
-function cleanText(str = '') {
-  return String(str)
-    .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF\u034F]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
-  global.db.data.users[m.sender] ??= {}
-  global.db.data.settings[conn.user.jid] ??= {}
-
-  if (![1, 2, 3].includes(global.db.data.settings[conn.user.jid].setmenu)) {
-    global.db.data.settings[conn.user.jid].setmenu = 1
-  }
-
-  let user = global.db.data.users[m.sender]
-  let typeMenu = global.db.data.settings[conn.user.jid].setmenu
-
-  let { level = 0, role = 'Newbie', limit = 0, premiumTime = 0 } = user
-=======
 let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
   let user = global.db.data.users[m.sender]
   let setting = global.db.data.settings[conn.user.jid] || { setmenu: 1 }
   let typeMenu = setting.setmenu
 
   let { level, role, limit, premiumTime } = user
->>>>>>> 497aa13 (anya-md)
   let name = `@${m.sender.split('@')[0]}`
   let strLimit = isOwner ? '∞' : premiumTime > 0 ? 'Unlimited' : `${limit}`
 
@@ -58,19 +36,10 @@ let handler = async (m, { conn, usedPrefix, command, text, isOwner }) => {
     }
   }
 
-<<<<<<< HEAD
-  let menuType = cleanText(text).toLowerCase()
-  if (!menuType) menuType = 'list'
-
-  let arrayMenu = Object.keys(categories).sort()
-
-  const formatTag = tag => String(tag)
-=======
   let menuType = text?.toLowerCase().trim()
   let arrayMenu = Object.keys(categories).sort()
 
   const formatTag = tag => tag
->>>>>>> 497aa13 (anya-md)
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, v => v.toUpperCase())
 
@@ -100,21 +69,6 @@ Pilih kategori menu dulu yaa... heh? 😳
   try {
     thumb = fs.readFileSync('./media/menu.png')
   } catch {
-<<<<<<< HEAD
-    try {
-      thumb = await (
-        await fetch('https://raw.githubusercontent.com/hamm-r/uploader/main/1779255801770-854.jpg')
-      ).buffer()
-    } catch {
-      thumb = Buffer.alloc(0)
-    }
-  }
-
-  if (typeMenu === 1 && menuType === 'list') {
-    await conn.sendMessage(m.chat, {
-      image: thumb,
-      caption: ' ',
-=======
     thumb = await (
       await fetch('https://raw.githubusercontent.com/hamm-r/uploader/main/1779255801770-854.jpg')
     ).buffer()
@@ -126,7 +80,6 @@ Pilih kategori menu dulu yaa... heh? 😳
 
       caption: ' ',
 
->>>>>>> 497aa13 (anya-md)
       footer: `
 — ANYA MD —
 
@@ -140,31 +93,14 @@ Pilih kategori menu dulu yaa... heh? 😳
 ⌕ select menu below
 © Anya MD
 `.trim(),
-<<<<<<< HEAD
-      optionText: '🥜 Pilih Menu',
-      optionTitle: 'List Menu Anya',
-=======
 
       optionText: '🥜 Pilih Menu',
       optionTitle: 'List Menu Anya',
 
->>>>>>> 497aa13 (anya-md)
       offerText: '🎁 Special Menu!',
       offerCode: 'ANYA-MD',
       offerUrl: 'https://chat.whatsapp.com/KXDWrwd6j5h33AMVdAKFDD?s=cl&p=a&mlu=4',
       offerExpiration: Date.now() + 86400000,
-<<<<<<< HEAD
-      nativeFlow: [
-        {
-          text: '🍓 Pilih Kategori',
-          sections: [
-            {
-              title: `🥜 Semua Kategori (${arrayMenu.length})`,
-              rows: arrayMenu.map(v => ({
-                header: 'Anya MD',
-                title: `✦ ${formatTag(v)}`,
-                description: `Menu kategori ${formatTag(v)} milik Anya`,
-=======
 
       nativeFlow: [
         {
@@ -181,33 +117,10 @@ Pilih kategori menu dulu yaa... heh? 😳
 
                 description: `Menu kategori ${formatTag(v)} milik Anya`,
 
->>>>>>> 497aa13 (anya-md)
                 id: `${usedPrefix + command} ${v}`
               }))
             }
           ],
-<<<<<<< HEAD
-          icon: 'default'
-        },
-        {
-          text: '🍬 All Menu',
-          id: `${usedPrefix + command} all`,
-          icon: 'review'
-        },
-        {
-          text: '📋 Copy Menu',
-          copy: `${usedPrefix + command} all`
-        },
-        {
-          text: '🤗 Group Anya',
-          url: 'https://chat.whatsapp.com/KXDWrwd6j5h33AMVdAKFDD?s=cl&p=a&mlu=4',
-          useWebview: true
-        }
-      ],
-      interactiveAsTemplate: false
-    }, { quoted: m })
-  } else if (typeMenu === 2 && menuType === 'list') {
-=======
 
           icon: 'default'
         },
@@ -240,7 +153,6 @@ Pilih kategori menu dulu yaa... heh? 😳
     }, { quoted: m })
 
   } else if (typeMenu === 2 && (!menuType || menuType === 'list')) {
->>>>>>> 497aa13 (anya-md)
     let rows = arrayMenu.map(tag => ({
       title: `✨ ${tag.toUpperCase()}`,
       id: `${usedPrefix + command} ${tag}`
@@ -257,12 +169,8 @@ Pilih kategori menu dulu yaa... heh? 😳
         }]
       }]
     }, { quoted: m })
-<<<<<<< HEAD
-  } else if (typeMenu === 3 && menuType === 'list') {
-=======
 
   } else if (typeMenu === 3 && (!menuType || menuType === 'list')) {
->>>>>>> 497aa13 (anya-md)
     let txt = mainCaption + `\n\n────── 🍓 ──────\n`
 
     for (let tag of arrayMenu) {
@@ -275,27 +183,6 @@ Pilih kategori menu dulu yaa... heh? 😳
       image: thumb,
       caption: txt.trim()
     }, { quoted: m })
-<<<<<<< HEAD
-  } else {
-    let tagsToShow = menuType === 'all'
-      ? arrayMenu
-      : categories[menuType]
-        ? [menuType]
-        : []
-
-    if (tagsToShow.length === 0) {
-      menuType = 'list'
-
-      if (typeMenu === 1) {
-        return handler(m, { conn, usedPrefix, command, text: '', isOwner })
-      }
-
-      return m.reply(`Heh? menu itu nggak ada 😵`)
-    }
-
-    let detailText = `*ANYA MD*\n(heh? banyak banget menu 😳)\n`
-
-=======
 
   } else {
     let detailText = `*ANYA MD*\n(heh? banyak banget menu 😳)\n`
@@ -308,7 +195,6 @@ Pilih kategori menu dulu yaa... heh? 😳
       return m.reply(`Heh? menu *${text}* nggak ada 😵`)
     }
 
->>>>>>> 497aa13 (anya-md)
     for (let tag of tagsToShow) {
       detailText += `\n🍓 *${tag.toUpperCase()}*\n`
 

@@ -14,13 +14,10 @@ import { spawn } from 'child_process'
 const qualityvideo = ['144', '240', '360', '720', '1080']
 const qualityaudio = ['128', '320']
 
-<<<<<<< HEAD
-=======
 const MAX_VIDEO_DURATION = 5 * 60 // 5 menit
 const MAX_UPLOAD_MB = 80 // ubah kalau mau
 const MAX_UPLOAD_SIZE = MAX_UPLOAD_MB * 1024 * 1024
 
->>>>>>> 497aa13 (anya-md)
 const headers = {
   'User-Agent': 'Mozilla/5.0',
   'Accept': '*/*',
@@ -38,14 +35,11 @@ function cleanName(name = 'file') {
     .trim()
 }
 
-<<<<<<< HEAD
-=======
 function formatSize(bytes = 0) {
   if (!bytes) return 'Unknown'
   return (bytes / 1024 / 1024).toFixed(2) + ' MB'
 }
 
->>>>>>> 497aa13 (anya-md)
 function ekstrakid(url) {
   const str = String(url)
 
@@ -87,8 +81,6 @@ async function metadata(videoId) {
   }
 }
 
-<<<<<<< HEAD
-=======
 async function getDuration(videoId) {
   try {
     const r = await axios.get(`https://www.youtube.com/watch?v=${videoId}`, {
@@ -102,7 +94,6 @@ async function getDuration(videoId) {
   }
 }
 
->>>>>>> 497aa13 (anya-md)
 async function getkey() {
   const r = await axios.get('https://cnv.cx/v2/sanity/key', { headers })
   if (!r.data?.key) throw 'Gagal mengambil key'
@@ -170,19 +161,13 @@ async function y2mate(input, format = 'mp3', quality = null) {
   const id = isUrl ? ekstrakid(input) : await search(input)
 
   const meta = await metadata(id)
-<<<<<<< HEAD
-=======
   const duration = await getDuration(id)
->>>>>>> 497aa13 (anya-md)
   const job = await createjob(id, format, quality)
 
   if (job.status === 'tunnel' && job.url) {
     return {
       ...meta,
-<<<<<<< HEAD
-=======
       duration,
->>>>>>> 497aa13 (anya-md)
       format,
       quality,
       download: job.url,
@@ -191,18 +176,12 @@ async function y2mate(input, format = 'mp3', quality = null) {
   }
 
   if (job.status === 'processing' && job.jobId) {
-<<<<<<< HEAD
-    return await poll(job.jobId, format, quality, meta)
-=======
     return await poll(job.jobId, format, quality, { ...meta, duration })
->>>>>>> 497aa13 (anya-md)
   }
 
   throw 'Gagal membuat link download'
 }
 
-<<<<<<< HEAD
-=======
 async function getFileSize(url) {
   try {
     const r = await axios.head(url, {
@@ -218,7 +197,6 @@ async function getFileSize(url) {
   }
 }
 
->>>>>>> 497aa13 (anya-md)
 async function downloadBuffer(url) {
   const r = await axios.get(url, {
     responseType: 'arraybuffer',
@@ -268,10 +246,6 @@ async function fixVideoForWA(buffer) {
     })
 
     return fs.readFileSync(output)
-<<<<<<< HEAD
-
-=======
->>>>>>> 497aa13 (anya-md)
   } finally {
     try { fs.unlinkSync(input) } catch {}
     try { fs.unlinkSync(output) } catch {}
@@ -304,8 +278,6 @@ let handler = async (m, { conn, text, command }) => {
 
     if (!res?.download) throw 'Link download tidak ditemukan'
 
-<<<<<<< HEAD
-=======
     const size = await getFileSize(res.download)
 
     if (format === 'mp4') {
@@ -339,7 +311,6 @@ let handler = async (m, { conn, text, command }) => {
       }
     }
 
->>>>>>> 497aa13 (anya-md)
     if (format === 'mp3') {
       const audio = await downloadBuffer(res.download)
 
